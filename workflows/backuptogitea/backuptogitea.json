@@ -1,0 +1,485 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "repo.url"
+            },
+            {
+              "name": "repo.name",
+              "value": "workflows"
+            },
+            {
+              "name": "repo.owner"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1e9ff8e3-17d1-406e-9afa-a7c5b3dd9051",
+      "name": "Globals",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        -208
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 45
+            }
+          ]
+        }
+      },
+      "id": "bb4d2961-f4de-4205-8fd8-07b5f9acea8a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        -208
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0a6b769a-c66d-4784-92c7-a70caa28e1ba",
+              "name": "item",
+              "type": "object",
+              "value": "={{ $node[\"ForEach\"].json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e74b9041-c6d7-4466-81ad-d254b8c2423d",
+      "name": "SetDataUpdateNode",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1552,
+        -208
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0a6b769a-c66d-4784-92c7-a70caa28e1ba",
+              "name": "item",
+              "type": "object",
+              "value": "={{ $node[\"ForEach\"].json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "55a50906-6baa-4030-8b60-d8cf2da342d6",
+      "name": "SetDataCreateNode",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        848,
+        192
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "import json\nimport base64\n\ndef normalize_nulls(x):\n    if x is None:\n        return None\n    s = str(x)\n    if s in (\"JsNull\", \"JsUndefined\", \"null\", \"undefined\"):\n        return None\n    if isinstance(x, dict):\n        return {k: normalize_nulls(v) for k, v in x.items()}\n    if isinstance(x, list):\n        return [normalize_nulls(v) for v in x]\n    return x\n\nitems = _items\nif not items:\n    raise ValueError(\"Geen input items ontvangen\")\n\ninner_data = items[0].get(\"json\", {}).get(\"item\")\ninner_data = normalize_nulls(inner_data)\n\nif inner_data is None:\n    raise ValueError(\"Geen 'json.item' gevonden in input\")\n\njson_string = json.dumps(inner_data, indent=4, ensure_ascii=False)\nbase64_string = base64.b64encode(json_string.encode(\"utf-8\")).decode(\"utf-8\")\n\nreturn [{\"json\": {\"item\": base64_string}}]"
+      },
+      "id": "548809c4-ca3a-4620-b9a1-80292b3c27f4",
+      "name": "Base64EncodeUpdate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1776,
+        -208
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "import json\nimport base64\n\nitems = _input.all().to_py()\n\ndef normalize_nulls(x):\n    t = type(x).__name__\n    if t in (\"JsNull\", \"JsUndefined\"):\n        return None\n    if isinstance(x, dict):\n        return {k: normalize_nulls(v) for k, v in x.items()}\n    if isinstance(x, list):\n        return [normalize_nulls(v) for v in x]\n    return x\n\ninner_data = items[0].get(\"json\", {}).get(\"item\")\ninner_data = normalize_nulls(inner_data)\n\nif inner_data is None:\n    raise ValueError(\"Geen 'json.item' gevonden in input\")\n\njson_string = json.dumps(inner_data, indent=4, ensure_ascii=False)\nbase64_string = base64.b64encode(json_string.encode(\"utf-8\")).decode(\"utf-8\")\n\nreturn {\n    \"json\": {\n        \"item\": base64_string\n    }\n}"
+      },
+      "id": "3d57da23-ac7a-49ea-91aa-3abf5d91d330",
+      "name": "Base64EncodeCreate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1152,
+        192
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "16a9182d-059d-4774-ba95-654fb4293fdb",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.error }}",
+              "rightValue": 404
+            }
+          ]
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "id": "caaa592c-a8fa-4d42-8570-4f1ffd16cab2",
+      "name": "Exist",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1280,
+        -192
+      ],
+      "executeOnce": false,
+      "typeVersion": 2.2,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0c66624-429a-4f1f-bf7b-1cc1b32bad7b",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.item }}",
+              "rightValue": "={{ $('GetGitea').item.json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "55fca40c-afb5-4b77-8700-bc12a731fdce",
+      "name": "Changed",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2000,
+        -208
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Globals').item.json.repo.url }}/api/v1/repos/{{ $('Globals').item.json.repo.owner }}/{{ $('Globals').item.json.repo.name }}/contents/{{ encodeURIComponent($('GetGitea').item.json.name) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $('Base64EncodeUpdate').item.json.item }}"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $('GetGitea').item.json.sha }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4e9fd397-9f9e-44a2-af97-29c2f304826e",
+      "name": "PutGitea",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2336,
+        -80
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "WCY08q03jjZEws7t",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Globals').item.json.repo.url }}/api/v1/repos/{{ encodeURIComponent($('Globals').item.json.repo.owner) }}/{{ encodeURIComponent($('Globals').item.json.repo.name) }}/contents/{{ encodeURIComponent($json.name) }}.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "5c555356-325f-4faf-9d49-f680af43617d",
+      "name": "GetGitea",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1008,
+        -192
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "WCY08q03jjZEws7t",
+          "name": "Header Auth account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Globals').item.json.repo.url }}/api/v1/repos/{{ $('Globals').item.json.repo.owner }}/{{ $('Globals').item.json.repo.name }}/contents/{{ encodeURIComponent($('ForEach').item.json.name) }}.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $json.item }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8b5f344c-93a5-40eb-9b6b-35d4ac1a07fe",
+      "name": "PostGitea",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1552,
+        192
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "WCY08q03jjZEws7t",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ee9250af-d9fa-4a87-8189-36ad665084c7",
+      "name": "ForEach",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        688,
+        -208
+      ],
+      "executeOnce": false,
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "id": "265c04e1-86b9-43b5-aa9d-a254e416cd39",
+      "name": "n8n",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        480,
+        -208
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "n8nApi": {
+          "id": "VMnAnvi4Lb2UekID",
+          "name": "n8n account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Globals": {
+      "main": [
+        [
+          {
+            "node": "n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Globals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetDataUpdateNode": {
+      "main": [
+        [
+          {
+            "node": "Base64EncodeUpdate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetDataCreateNode": {
+      "main": [
+        [
+          {
+            "node": "Base64EncodeCreate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64EncodeUpdate": {
+      "main": [
+        [
+          {
+            "node": "Changed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64EncodeCreate": {
+      "main": [
+        [
+          {
+            "node": "PostGitea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exist": {
+      "main": [
+        [
+          {
+            "node": "SetDataUpdateNode",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SetDataCreateNode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changed": {
+      "main": [
+        [
+          {
+            "node": "PutGitea",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ForEach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PutGitea": {
+      "main": [
+        [
+          {
+            "node": "ForEach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetGitea": {
+      "main": [
+        [
+          {
+            "node": "Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostGitea": {
+      "main": [
+        [
+          {
+            "node": "ForEach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ForEach": {
+      "main": [
+        [],
+        [
+          {
+            "node": "GetGitea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n": {
+      "main": [
+        [
+          {
+            "node": "ForEach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "7859ee5e4f601bf3b251b969e971a5355bce9e6f563c9ff22c6866e77473a0a6"
+  }
+}
