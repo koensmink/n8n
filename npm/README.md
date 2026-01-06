@@ -21,9 +21,9 @@ if ($request_uri !~ ^/(webhook|webhook-test)/) {
 
 | URL | Resultaat |
 |----|----|
-| `https://hooks-public-1.../` | 404 (geen login pagina) |
-| `https://hooks-public-1.../webhook/<id>` | Toegestaan |
-| `https://hooks-public-1.../webhook-test/<id>` | Toegestaan |
+| `https://<url>.../` | 404 (geen login pagina) |
+| `https://<url>.../webhook/<id>` | Toegestaan |
+| `https://<url>.../webhook-test/<id>` | Toegestaan |
 
 > Wil je harder droppen (minder informatielek), vervang `404` door `444`.
 
