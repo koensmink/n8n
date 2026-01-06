@@ -1,0 +1,18 @@
+{
+  "task-runners": [
+    {
+      "runner-type": "javascript",
+      "workdir": "/home/runner",
+      "health-check-server-port": "5681",
+      "env-overrides": {}
+    },
+    {
+      "runner-type": "python",
+      "workdir": "/home/runner",
+      "health-check-server-port": "5682",
+      "env-overrides": {
+        "N8N_RUNNERS_STDLIB_ALLOW": "json,base64"
+      }
+    }
+  ]
+}
