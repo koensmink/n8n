@@ -1,4 +1,5 @@
 ##  Path-based allowlisting 
+Zonder Path based allowlisting publisheer je de login pagina, deze staat namelijk standaard op / 
 
 In **Nginx Proxy Manager**:
 
