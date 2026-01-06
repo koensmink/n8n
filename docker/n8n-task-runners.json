@@ -3,15 +3,26 @@
     {
       "runner-type": "javascript",
       "workdir": "/home/runner",
+      "command": "/usr/local/bin/node",
+      "args": [
+        "--disallow-code-generation-from-strings",
+        "--disable-proto=delete",
+        "/opt/runners/task-runner-javascript/dist/start.js"
+      ],
       "health-check-server-port": "5681",
-      "env-overrides": {}
+      "env-overrides": {
+        "N8N_RUNNERS_HEALTH_CHECK_SERVER_HOST": "0.0.0.0"
+      }
     },
     {
       "runner-type": "python",
       "workdir": "/home/runner",
+      "command": "/opt/runners/task-runner-python/.venv/bin/python",
+      "args": ["-m", "src.main"],
       "health-check-server-port": "5682",
       "env-overrides": {
-        "N8N_RUNNERS_STDLIB_ALLOW": "json,base64"
+        "N8N_RUNNERS_STDLIB_ALLOW": "json,base64",
+        "PYTHONPATH": "/opt/runners/task-runner-python"
       }
     }
   ]
