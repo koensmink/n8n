@@ -45,7 +45,7 @@ services:
       - n8n
 
   postgres:
-    image: postgres:latest
+    image: postgres:18
     container_name: postgres
     ports:
       - "25432:25432"
@@ -55,11 +55,9 @@ services:
       POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD}
       PGPORT: 25432
     volumes:
-      - /docker/data/n8n/postgres:/var/lib/postgresql/data
+      - /docker/data/n8n/postgres:/var/lib/postgresql
     restart: unless-stopped
 
 volumes:
   n8n_data:
     name: n8n_data
-  postgres_data:
-    name: postgres_data
