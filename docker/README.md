@@ -14,7 +14,7 @@
 
 ---
 
-## Keuzehulp: basic vs advanced
+## Verschillen tussen basic vs advanced
 
 | Kenmerk | Basic | Advanced |
 |---|---|---|
