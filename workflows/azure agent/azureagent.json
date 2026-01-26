@@ -1,0 +1,118 @@
+{
+  "name": "Azure+M365 Digest Bridge",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "azure-digest",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "Webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$headers[\"x-api-key\"] || \"\"}}",
+              "operation": "equal",
+              "value2": "={{$env.N8N_DIGEST_API_KEY}}"
+            }
+          ]
+        }
+      },
+      "id": "IF",
+      "name": "Auth Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 260]
+    },
+    {
+      "parameters": {
+        "url": "http://ms-changes-collector:8088/digest?hours=24&ga_only=true&security_only=true&limit=200",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "HTTP",
+      "name": "Fetch Digest (Local)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [700, 220]
+    },
+    {
+      "parameters": {
+        "responseData": "={{$json}}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "RespondOK",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [940, 220]
+    },
+    {
+      "parameters": {
+        "responseData": "={{ {\"error\":\"unauthorized\"} }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "Respond401",
+      "name": "Respond 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [700, 360]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Auth Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Digest (Local)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Digest (Local)": {
+      "main": [
+        [
+          {
+            "node": "Respond 200",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "versionId": "1"
+}
