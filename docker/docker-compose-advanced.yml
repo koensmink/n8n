@@ -32,6 +32,19 @@ services:
     depends_on:
       - postgres
 
+  graph-signer:
+    image: node:20-alpine
+    container_name: graph-signer
+    working_dir: /app
+    command: sh -lc "node /app/signer.js"
+    environment:
+      - GRAPH_PRIVATE_KEY_PEM=${N8N_GRAPH_PRIVATE_KEY_PEM}
+    volumes:
+      - /docker/data/n8n/signer/signer.js:/app/signer.js:ro
+    ports:
+      - "127.0.0.1:3003:3001"
+    restart: unless-stopped
+
   task-runners:
     image: n8nio/runners:latest
     container_name: n8n-task-runners
