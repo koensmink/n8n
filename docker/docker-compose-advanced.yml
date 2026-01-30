@@ -42,7 +42,7 @@ services:
     volumes:
       - /docker/data/n8n/signer/signer.js:/app/signer.js:ro
     ports:
-      - "127.0.0.1:3003:3001"
+      - "127.0.0.1:3003:3003"
     restart: unless-stopped
 
   task-runners:
