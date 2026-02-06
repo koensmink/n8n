@@ -62,7 +62,7 @@ services:
 #N8N backend      
   postgres:
     image: postgres:18
-    container_name: postgres
+    container_name: postgres_n8nbackend
     ports:
       - "25432"
     environment:
@@ -75,9 +75,9 @@ services:
     restart: unless-stopped
 
 #N8N DB_1     
-  postgres:
+  postgres_db1:
     image: postgres:18
-    container_name: postgres
+    container_name: postgres_db1
     ports:
       - "25433"
     environment:
