@@ -22,7 +22,6 @@ services:
       - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=${N8N_RUNNERS_BROKER_LISTEN_ADDRESS}
       - N8N_RUNNERS_AUTH_TOKEN=${N8N_RUNNERS_AUTH_TOKEN}
       - N8N_NATIVE_PYTHON_RUNNER=${N8N_NATIVE_PYTHON_RUNNER}
-      - N8N_GRAPH_PRIVATE_KEY_PEM=${N8N_GRAPH_PRIVATE_KEY_PEM}
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
     ports:
       - "5678:5678"
@@ -31,20 +30,7 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
-
-  graph-signer:
-    image: node:20-alpine
-    container_name: graph-signer
-    working_dir: /app
-    command: sh -lc "node /app/signer.js"
-    environment:
-      - GRAPH_PRIVATE_KEY_PEM=${N8N_GRAPH_PRIVATE_KEY_PEM}
-    volumes:
-      - /docker/data/n8n/signer/signer.js:/app/signer.js:ro
-    ports:
-      - "127.0.0.1:3003:3003"
-    restart: unless-stopped
-
+      
   task-runners:
     image: n8nio/runners:latest
     container_name: n8n-task-runners
@@ -58,7 +44,7 @@ services:
     restart: unless-stopped
     depends_on:
       - n8n
-
+      
 #N8N backend      
   postgres:
     image: postgres:18
@@ -72,21 +58,6 @@ services:
       PGPORT: 25432
     volumes:
       - /docker/data/n8n/postgres:/var/lib/postgresql
-    restart: unless-stopped
-
-#N8N DB_1     
-  postgres_db1:
-    image: postgres:18
-    container_name: postgres_db1
-    ports:
-      - "25433"
-    environment:
-      POSTGRES_DB: ${DB_POSTGRESDB_DATABASE_DB1}
-      POSTGRES_USER: ${DB_POSTGRESDB_USER_DB1}
-      POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD_DB1}
-      PGPORT: 25433
-    volumes:
-      - /docker/data/n8n/postgres_db1:/var/lib/postgresql
     restart: unless-stopped
     
 volumes:
