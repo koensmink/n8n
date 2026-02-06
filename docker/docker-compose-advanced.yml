@@ -59,11 +59,12 @@ services:
     depends_on:
       - n8n
 
+#N8N backend      
   postgres:
     image: postgres:18
     container_name: postgres
     ports:
-      - "25432:25432"
+      - "25432"
     environment:
       POSTGRES_DB: ${DB_POSTGRESDB_DATABASE}
       POSTGRES_USER: ${DB_POSTGRESDB_USER}
@@ -73,6 +74,21 @@ services:
       - /docker/data/n8n/postgres:/var/lib/postgresql
     restart: unless-stopped
 
+#N8N DB_1     
+  postgres:
+    image: postgres:18
+    container_name: postgres
+    ports:
+      - "25433"
+    environment:
+      POSTGRES_DB: ${DB_POSTGRESDB_DATABASE_DB1}
+      POSTGRES_USER: ${DB_POSTGRESDB_USER_DB1}
+      POSTGRES_PASSWORD: ${DB_POSTGRESDB_PASSWORD_DB1}
+      PGPORT: 25433
+    volumes:
+      - /docker/data/n8n/postgres_db1:/var/lib/postgresql
+    restart: unless-stopped
+    
 volumes:
   n8n_data:
     name: n8n_data
